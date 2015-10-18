@@ -1,0 +1,18 @@
+{
+  "name": "curiosity26/httpkit",
+  "description": "A framework to allow handling HTTP calls in PHP easier and simpler.",
+  "minimum-stability": "stable",
+  "license": "GPLv2",
+  "authors": [
+    {
+      "name": "Alex Boyce",
+      "email": "curiosity26@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"HTTPKit/": "src/HTTPKit/"}
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  }
+}
