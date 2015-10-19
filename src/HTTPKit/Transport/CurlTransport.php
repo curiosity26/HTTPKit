@@ -26,7 +26,9 @@ class CurlTransport extends AbstractTransport
 
   protected function build(RequestInterface $request)
   {
-    $cookies = $this->getCookies();
+    $cookies = $this->getCookieHandler();
+    $content = $request->getContent();
+    $security = $this->getSecurity();
 
     curl_setopt_array(
       $this->ch,
@@ -35,7 +37,6 @@ class CurlTransport extends AbstractTransport
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_VERBOSE => true,
-        CURLOPT_COOKIEJAR => $this->getCookies(),
         CURLOPT_PORT => $request->getPort() !== NULL ? $request->getPort() : 80,
         CURLOPT_FAILONERROR => false,
         CURLOPT_TIMEOUT => $this->timeout,
@@ -53,17 +54,6 @@ class CurlTransport extends AbstractTransport
       }
     }
 
-    if (is_string($cookies)) {
-      if (file_exists($cookies)) {
-        curl_setopt($this->ch, CURLOPT_COOKIEFILE, $cookies);
-      }
-      else {
-        curl_setopt($this->ch, CURLOPT_COOKIE, $cookies);
-      }
-    }
-
-    $content = $request->getContent();
-
     if ($request->getMethod() == $request::METHOD_PUT && get_resource_type($content) == 'file') {
       curl_setopt($this->ch, CURLOPT_INFILE, $content);
     } elseif (is_string($content) || is_array($content)) {
@@ -74,7 +64,6 @@ class CurlTransport extends AbstractTransport
     }
 
     // Handle Security
-    $security = $this->getSecurity();
 
     if (null !== $security && $security instanceof AuthenticationInterface) {
       curl_setopt($this->ch, CURLOPT_HTTPAUTH, $security->getMethod());
@@ -118,6 +107,8 @@ class CurlTransport extends AbstractTransport
   public function parse($rawResponse, $requestInfo, ResponseInterface $response)
   {
     $headerLength = 0;
+    $cookies = $this->getCookieHandler();
+
     if ($requestInfo['http_code'] !== 201 && $requestInfo['header_size'] > 0) {
       $headerLength = $requestInfo['header_size'];
     }
@@ -128,6 +119,10 @@ class CurlTransport extends AbstractTransport
     $response->setResponseCode($requestInfo['http_code']);
     $response->setRawHeader($rawHeader);
     $response->setRawResponse($content);
+
+    if (null !== $cookies) {
+      $cookies->parse($response);
+    }
   }
 
   /**
@@ -145,6 +140,7 @@ class CurlTransport extends AbstractTransport
     curl_close($this->ch);
 
     $response = new Response();
+    $response->setRequest($request);
 
     $this->parse($body, $info, $response);
 

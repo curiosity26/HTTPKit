@@ -9,13 +9,16 @@
 namespace HTTPKit\Response;
 
 
+use HTTPKit\Request\RequestInterface;
+
 class Response extends AbstractResponse
 {
-  public function __construct($response = null, $header = null, $code = 200)
+  public function __construct($response = null, $header = null, $code = 200, RequestInterface $request = null)
   {
     // This can still be overridden. If the raw header contains the HTTP/1.1 ### Status line, then that value will win
     $this->setResponseCode($code);
     $this->setRawHeader($header);
     $this->setRawResponse($response);
+    $this->setRequest($request);
   }
 }

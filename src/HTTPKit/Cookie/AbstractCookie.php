@@ -19,6 +19,7 @@ abstract class AbstractCookie implements CookieInterface
   protected $path;
   protected $secure = false;
   protected $http_only = true;
+  protected $created;
 
   public function setName($name) {
     // Sanitize name
@@ -58,8 +59,8 @@ abstract class AbstractCookie implements CookieInterface
     return $this;
   }
 
-  public function setMaxAge(Integer $max_age) {
-    $this->max_age = max(1, $max_age); // Must be a positive, non-zero value
+  public function setMaxAge($max_age) {
+    $this->max_age = max(1, (int)$max_age); // Must be a positive, non-zero value
 
     return $this;
   }
@@ -82,8 +83,8 @@ abstract class AbstractCookie implements CookieInterface
     return $this->path;
   }
 
-  public function setSecure(Boolean $secure = true) {
-    $this->secure = $secure;
+  public function setSecure($secure = true) {
+    $this->secure = ($secure == true);
 
     return $this;
   }
@@ -92,8 +93,8 @@ abstract class AbstractCookie implements CookieInterface
     return $this->secure;
   }
 
-  public function setHttpOnly(Boolean $http_only = true) {
-    $this->http_only = $http_only;
+  public function setHttpOnly($http_only = true) {
+    $this->http_only = ($http_only == true);
 
     return $this;
   }
@@ -102,7 +103,27 @@ abstract class AbstractCookie implements CookieInterface
     return $this->http_only;
   }
 
+  public function getCreated() {
+    return $this->created;
+  }
+
+  public function isExpired() {
+    $created = $this->getCreated() ?: new \DateTime();
+    $expires = $this->getExpires();
+
+    if (null !== $this->getMaxAge()) {
+      $expires = clone($created);
+      $expires->add(new \DateInterval("PT{$this->getMaxAge()}S"));
+    }
+    elseif (null === $expires) {
+      $expires = clone($created);
+      $expires->add(new \DateInterval("P30D"));
+    }
+
+    return $created >= $expires;
+  }
+
   public function __toString() {
-    return "{$this->getName()}={$this->getValue()}; ";
+    return "{$this->getName()}={$this->getValue()}";
   }
 }

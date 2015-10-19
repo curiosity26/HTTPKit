@@ -9,10 +9,12 @@
 namespace HTTPKit\Response;
 
 
+use HTTPKit\Request\RequestInterface;
+
 abstract class AbstractResponse implements ResponseInterface {
   protected $raw_response;
   protected $raw_header;
-  protected $request_header;
+  protected $request;
   protected $content;
   protected $response_code;
   protected $headers = array();
@@ -125,12 +127,18 @@ abstract class AbstractResponse implements ResponseInterface {
     return $this;
   }
 
-  public function setRequestHeader($header) {
-    $this->request_header = $header;
+  /**
+   * @param RequestInterface $request
+   */
+  public function setRequest(RequestInterface $request) {
+    $this->request = $request;
   }
 
-  public function getRequestHeader() {
-    return $this->request_header;
+  /**
+   * @return RequestInterface|null
+   */
+  public function getRequest() {
+    return $this->request;
   }
 
   public function setResponseCode($code) {

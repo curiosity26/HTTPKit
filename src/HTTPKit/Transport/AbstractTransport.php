@@ -8,31 +8,27 @@
 
 namespace HTTPKit\Transport;
 
+use HTTPKit\Cookie\Handler\CookieHandlerInterface;
 use HTTPKit\Security\SecurityInterface;
 
 abstract class AbstractTransport implements TransportInterface
 {
-  protected $cookies;
+  protected $cookie_handler;
   protected $timeout = 120;
   protected $max_redirects = 0;
   protected $security;
 
-  /**
-   * @return mixed
-   */
-  public function getCookies()
-  {
-    return $this->cookies;
+  public function setCookieHandler(CookieHandlerInterface $cookie_handler = null) {
+    $this->cookie_handler = $cookie_handler;
+
+    return $this;
   }
 
   /**
-   * @param mixed $cookies
+   * @return CookieHandlerInterface|null
    */
-  public function setCookies($cookies)
-  {
-    $this->cookies = $cookies;
-
-    return $this;
+  public function getCookieHandler() {
+    return $this->cookie_handler;
   }
 
   public function setTimeout($timeout = 120) {

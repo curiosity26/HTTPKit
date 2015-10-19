@@ -10,14 +10,13 @@ namespace HTTPKit\Transport;
 
 
 
+use HTTPKit\Cookie\Handler\CookieHandlerInterface;
 use HTTPKit\Request\RequestInterface;
 use HTTPKit\Response\ResponseInterface;
 use HTTPKit\Security\SecurityInterface;
 
 interface TransportInterface
 {
-  public function setCookies($cookies);
-  public function getCookies();
 
   /**
    * @param $timeout
@@ -34,7 +33,18 @@ interface TransportInterface
   public function getMaxRedirects();
 
   public function setSecurity(SecurityInterface $security);
+
+  /**
+   * @return SecurityInterface|null
+   */
   public function getSecurity();
+
+  public function setCookieHandler(CookieHandlerInterface $cookie_handler);
+
+  /**
+   * @return CookieHandlerInterface|null
+   */
+  public function getCookieHandler();
 
   /**
    * @param RequestInterface $request

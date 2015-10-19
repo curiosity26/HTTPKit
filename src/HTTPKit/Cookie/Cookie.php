@@ -11,8 +11,6 @@ namespace HTTPKit\Cookie;
 
 class Cookie extends AbstractCookie
 {
-  private $created;
-
   public function __construct(
     $name = null,
     $value = null,
@@ -42,9 +40,5 @@ class Cookie extends AbstractCookie
       }
       $this->setExpires($expires);
     }
-  }
-
-  public function getCreated() {
-    return $this->created;
   }
 }

@@ -9,6 +9,8 @@
 namespace HTTPKit\Response;
 
 
+use HTTPKit\Request\RequestInterface;
+
 interface ResponseInterface
 {
   public function setResponseCode($code);
@@ -21,7 +23,11 @@ interface ResponseInterface
   public function getHeaders();
   public function getRawResponse();
   public function setRawResponse($response);
-  public function getRequestHeader();
-  public function setRequestHeader($header);
+  public function setRequest(RequestInterface $request);
+
+  /**
+   * @return RequestInterface|null
+   */
+  public function getRequest();
   public function isSuccess();
 }

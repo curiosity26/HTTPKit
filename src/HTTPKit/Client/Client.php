@@ -11,10 +11,9 @@ namespace HTTPKit\Client;
 
 use HTTPKit\Request\RequestInterface;
 use HTTPKit\Response\ResponseInterface;
-use HTTPKit\Security\SecurityInterface;
 use HTTPKit\Transport\CurlTransport;
 use HTTPKit\Transport\TransportInterface;
-use RESTKit\Transport\StreamTransport;
+use HTTPKit\Transport\StreamTransport;
 
 class Client extends AbstractClient
 {
