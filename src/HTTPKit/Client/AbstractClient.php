@@ -9,11 +9,15 @@
 namespace HTTPKit\Client;
 
 
+use HTTPKit\Cookie\Handler\CookieHandlerInterface;
+use HTTPKit\Security\SecurityInterface;
 use HTTPKit\Transport\TransportInterface;
 
 abstract class AbstractClient implements ClientInterface
 {
   protected $transport;
+  protected $security;
+  protected $cookie_handler;
 
   /**
    * @param TransportInterface $transport
@@ -30,5 +34,31 @@ abstract class AbstractClient implements ClientInterface
    */
   public function getTransport() {
     return $this->transport;
+  }
+
+  public function setSecurity(SecurityInterface $security = null) {
+    $this->security = $security;
+
+    return $this;
+  }
+
+  /**
+   * @return SecurityInterface|null
+   */
+  public function getSecurity() {
+    return $this->security;
+  }
+
+  public function setCookieHandler(CookieHandlerInterface $cookie_handler = null) {
+    $this->cookie_handler = $cookie_handler;
+
+    return $this;
+  }
+
+  /**
+   * @return CookieHandlerInterface|null
+   */
+  public function getCookieHandler() {
+    return $this->cookie_handler;
   }
 }

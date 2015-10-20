@@ -26,9 +26,7 @@ class CurlTransport extends AbstractTransport
 
   protected function build(RequestInterface $request)
   {
-    $cookies = $this->getCookieHandler();
     $content = $request->getContent();
-    $security = $this->getSecurity();
 
     curl_setopt_array(
       $this->ch,
@@ -61,16 +59,6 @@ class CurlTransport extends AbstractTransport
       if (is_string($content)) {
         $request->addHeader('Content-Length', strlen($content));
       }
-    }
-
-    // Handle Security
-
-    if (null !== $security && $security instanceof AuthenticationInterface) {
-      curl_setopt($this->ch, CURLOPT_HTTPAUTH, $security->getMethod());
-      curl_setopt($this->ch, CURLOPT_USERPWD, $security->getCredentials());
-    }
-    elseif (null !== $security && $security instanceof AuthorizationInterface) {
-      $request->addHeader($security->getHeaderName(), "{$security->getMethod()} {$security->getToken()}");
     }
 
     $builtHeaders = $request->buildHeaders();
@@ -107,7 +95,6 @@ class CurlTransport extends AbstractTransport
   public function parse($rawResponse, $requestInfo, ResponseInterface $response)
   {
     $headerLength = 0;
-    $cookies = $this->getCookieHandler();
 
     if ($requestInfo['http_code'] !== 201 && $requestInfo['header_size'] > 0) {
       $headerLength = $requestInfo['header_size'];
@@ -119,10 +106,6 @@ class CurlTransport extends AbstractTransport
     $response->setResponseCode($requestInfo['http_code']);
     $response->setRawHeader($rawHeader);
     $response->setRawResponse($content);
-
-    if (null !== $cookies) {
-      $cookies->parse($response);
-    }
   }
 
   /**

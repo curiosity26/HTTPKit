@@ -14,5 +14,4 @@ use HTTPKit\Security\SecurityInterface;
 interface AuthenticationInterface extends SecurityInterface
 {
   public function setCredentials($creds);
-  public function getCredentials();
 }

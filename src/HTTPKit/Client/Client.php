@@ -31,8 +31,25 @@ class Client extends AbstractClient
    * @return ResponseInterface
    */
   public function send(RequestInterface $request) {
-    return $this
+    $security = $this->getSecurity();
+    $cookie = $this->getCookieHandler();
+
+    if (null !== $security) {
+      $security->handleRequest($request);
+    }
+
+    if (null !== $cookie) {
+      $cookie->handleRequest($request);
+    }
+
+    $response = $this
       ->getTransport()
       ->send($request);
+
+    if (null !== $cookie) {
+      $cookie->parse($response);
+    }
+
+    return $response;
   }
 }

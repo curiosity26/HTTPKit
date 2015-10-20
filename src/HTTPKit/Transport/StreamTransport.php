@@ -27,16 +27,6 @@ class StreamTransport extends AbstractTransport
     $url = $request->getUrl();
     $matches = array();
     $method = $request->getMethod();
-    $security = $this->getSecurity();
-    $cookies = $this->getCookieHandler();
-
-    if (null !== $security) {
-      $security->handleRequest($request);
-    }
-
-    if (null !== $cookies) {
-      $cookies->handleRequest($request);
-    }
 
     $context = array(
       'http' => array(
@@ -72,14 +62,9 @@ class StreamTransport extends AbstractTransport
     $length = strpos($content, "\n\n");
     $header = substr($content, 0, $length);
     $body =  substr($content, ($length + strlen("\n\n")));
-    $cookies = $this->getCookieHandler();
 
     $response->setContent($body);
     $response->setRawHeader($header);
-
-    if (null !== $cookies) {
-      $cookies->parse($response);
-    }
   }
 
   /**
