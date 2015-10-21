@@ -11,31 +11,39 @@ namespace HTTPKit\Security\Authentication;
 
 use HTTPKit\Request\RequestInterface;
 
-class BasicAuthentication implements AuthenticationInterface
+class BasicAuthentication implements BasicAuthenticationInterface
 {
   const METHOD = 'Basic';
-  private $credentials;
+  private $username;
+  private $password;
 
-  public function __construct($creds = null, $password = null) {
-    if ($creds !== null) {
-      $this->setCredentials($creds, $password);
-    }
+  public function __construct($username = null, $password = null) {
+    $this->setUsername($username);
+    $this->setPassword($password);
   }
 
-  public function setCredentials($creds, $password = null) {
-    if (null !== $password) {
-      $this->credentials = base64_encode("$creds:$password");
+  public function setUsername($username) {
+    $this->username;
 
-      return $this;
-    }
+    return $this;
+  }
 
-    $this->credentials = $creds;
+  public function setPassword($password) {
+    $this->password = $password;
+
+    return $this;
+  }
+
+  public function setCredentials($creds) {
+    $parts = explode(':', base64_decode($creds));
+    $this->username = $parts[0];
+    $this->password = $parts[1];
 
     return $this;
   }
 
   public function getCredentials() {
-    return $this->credentials;
+    return base64_encode("$this->username:$this->password");
   }
 
   public function getMethod() {

@@ -16,8 +16,6 @@ use HTTPKit\Transport\TransportInterface;
 
 interface ClientInterface
 {
-  public function setTransport(TransportInterface $transport);
-  public function getTransport();
   public function setSecurity(SecurityInterface $security);
   public function getSecurity();
   public function setCookieHandler(CookieHandlerInterface $cookie_handler);

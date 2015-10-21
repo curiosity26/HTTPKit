@@ -19,11 +19,7 @@ class Client extends AbstractClient
 {
 
   public function __construct(TransportInterface $transport = null) {
-    if (null === $transport) {
-      $transport = function_exists('curl_init') ? new CurlTransport() : new StreamTransport();
-    }
-
-    $this->transport = $transport;
+    $this->transport = $transport ?: $this->guessTransport();
   }
 
   /**
