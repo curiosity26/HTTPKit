@@ -23,6 +23,6 @@
         timeoutForLargeTests="60"
         verbose="false">
     <listeners>
-        <listener class="HttpTestListener" file="Test/Server/HttpTestListener.php" />
+        <listener class="HttpTestListener" file="HttpTestListener.php" />
     </listeners>
 </phpunit>

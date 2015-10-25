@@ -7,8 +7,6 @@
  * Time: 6:40 PM
  */
 
-require_once "Server/HttpTestListener.php";
-
 class ClientTest extends PHPUnit_Framework_TestCase
 {
   public function testStreamConnection()
