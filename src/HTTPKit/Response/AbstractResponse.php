@@ -92,7 +92,7 @@ abstract class AbstractResponse implements ResponseInterface {
     $header_lines = explode('\r\n', $header);
     $matches = array();
 
-    if (preg_match('/^(\n|\s+)?HTTP\/\d.\d\s(?<code>\d{3})\s(?<message>.*)\n/', $header, $matches) !== false) {
+    if (preg_match('/^(\n|\s+)?HTTP\/\d.\d\s(?<code>\d{3})\s(?<message>.*)/', $header, $matches) !== false) {
       $this->setResponseCode($matches['code']);
       array_shift($header_lines);
     }

@@ -2,7 +2,7 @@
   "name": "curiosity26/httpkit",
   "description": "A framework to allow handling HTTP calls in PHP easier and simpler.",
   "minimum-stability": "stable",
-  "license": "GPLv2",
+  "license": "MIT",
   "authors": [
     {
       "name": "Alex Boyce",
@@ -10,9 +10,13 @@
     }
   ],
   "autoload": {
-    "psr-4": {"HTTPKit/": "src/HTTPKit/"}
+    "psr-4": {
+      "HTTPKit\\": "src/HTTPKit/"
+    }
   },
   "require-dev": {
-    "phpunit/phpunit": "*"
+    "php": ">=5.4.0",
+    "ext-curl": "*",
+    "phpunit/phpunit": "^4.0"
   }
 }

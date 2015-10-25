@@ -19,13 +19,19 @@ interface RequestInterface
   const METHOD_DELETE   = 'DELETE';
   const METHOD_HEAD     = 'HEAD';
   const METHOD_CONNECT  = 'CONNECT';
-  const METHOD_JSON     = 'JSON';
+
+  const SCHEME_HTTP = 'http';
+  const SCHEME_HTTPS = 'https';
 
   public function setUrl($url);
   public function getUrl();
-  public function setMethod($method);
+  public function setHost($host);
+  public function getHost();
+  public function setScheme($scheme = self::SCHEME_HTTP);
+  public function getScheme();
+  public function setMethod($method = self::METHOD_GET);
   public function getMethod();
-  public function setPort($port);
+  public function setPort($port = 80);
   public function getPort();
   public function setHeaders(array $headers);
   public function getHeaders();

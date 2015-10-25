@@ -12,8 +12,10 @@ namespace HTTPKit\Request;
 abstract class AbstractRequest implements RequestInterface
 {
   protected $url;
-  protected $port;
-  protected $method;
+  protected $scheme = self::SCHEME_HTTP;
+  protected $host;
+  protected $port = 80;
+  protected $method = self::METHOD_GET;
   protected $headers = array();
   protected $content;
   protected $cookies;
@@ -25,6 +27,15 @@ abstract class AbstractRequest implements RequestInterface
   public function setUrl($url)
   {
     $this->url = $url;
+    $this->setScheme(parse_url($url, PHP_URL_SCHEME))
+      ->setHost(parse_url($url, PHP_URL_HOST));
+
+    $port = parse_url($url, PHP_URL_PORT);
+    if (null === $port) {
+      $port = $this->getScheme() == self::SCHEME_HTTPS ? 443 : 80;
+    }
+
+    $this->setPort($port);
 
     return $this;
   }
@@ -33,7 +44,27 @@ abstract class AbstractRequest implements RequestInterface
     return $this->url;
   }
 
-  public function setMethod($method)
+  public function setHost($host) {
+    $this->host = $host;
+
+    return $this;
+  }
+
+  public function getHost() {
+    return $this->host;
+  }
+
+  public function setScheme($scheme = self::SCHEME_HTTP) {
+    $this->scheme = $scheme;
+
+    return $this;
+  }
+
+  public function getScheme() {
+    return $this->scheme;
+  }
+
+  public function setMethod($method = self::METHOD_GET)
   {
     if (in_array(
       $method,
@@ -44,8 +75,7 @@ abstract class AbstractRequest implements RequestInterface
         self::METHOD_HEAD,
         self::METHOD_POST,
         self::METHOD_PUT,
-        self::METHOD_PATCH,
-        self::METHOD_JSON
+        self::METHOD_PATCH
       )
     )) {
       $this->method = $method;
@@ -61,7 +91,7 @@ abstract class AbstractRequest implements RequestInterface
     return $this->method;
   }
 
-  public function setPort($port)
+  public function setPort($port = 80)
   {
     $this->port = $port;
 
@@ -111,15 +141,14 @@ abstract class AbstractRequest implements RequestInterface
   public function getRawHeader() {
     $method = $this->getMethod();
 
-    if ($method === self::METHOD_JSON) {
-      $method = 'POST';
-      $this->addHeader('Content-Type', 'application/json');
-    }
+    $url = $this->getUrl();
+    $host = $this->getHost();
+    $path = parse_url($url, PHP_URL_PATH);
+    $query = parse_url($url, PHP_URL_QUERY);
 
-    $host = parse_url($this->getUrl(), PHP_URL_HOST);
-    $uri = preg_replace('/^.*?:?\/\/[^\/]+', '', $this->getUrl());
+    $uri = $path.($query ? "?$query": null);
 
-    $this->raw_header = "$method $uri HTTP/1.1".'\r\n'."Host: $host".'\r\n'.$this->buildHeaders();
+    return $this->raw_header = "$method $uri HTTP/1.1"."\r\n"."Host: $host"."\r\n".implode("\r\n", $this->buildHeaders());
   }
 
   public function setContent($data)

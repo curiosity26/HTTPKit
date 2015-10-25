@@ -17,8 +17,17 @@ class Response extends AbstractResponse
   {
     // This can still be overridden. If the raw header contains the HTTP/1.1 ### Status line, then that value will win
     $this->setResponseCode($code);
-    $this->setRawHeader($header);
-    $this->setRawResponse($response);
-    $this->setRequest($request);
+
+    if (null !== $request) {
+      $this->setRequest($request);
+    }
+
+    if (null !== $header) {
+      $this->setRawHeader($header);
+    }
+
+    if (null !== $response) {
+      $this->setRawResponse($response);
+    }
   }
 }
