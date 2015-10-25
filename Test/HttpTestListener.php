@@ -14,23 +14,17 @@ class HttpTestListener extends PHPUnit_Framework_BaseTestListener
   private $web_root;
   private $server_pid;
 
-  public function __construct($ip_address = '127.0.0.1', $port = '8000', $web_root = null) {
+  public function __construct($ip_address = '127.0.0.1', $port = '8000', $web_root = "public_html") {
     $this->ip_address = $ip_address;
     $this->port = $port;
     $this->web_root = $web_root;
   }
 
   public function startTestSuite(\PHPUnit_Framework_TestSuite $suite) {
-    $web_root = $this->web_root;
-
-    if ($web_root === null) {
-      $web_root = __DIR__.'/../public_html/';
-    }
-
-    $cmd = "nohup php -S {$this->ip_address}:{$this->port} -t $web_root >/dev/null 2>&1 & echo $!";
+    $cmd = "nohup php -S {$this->ip_address}:{$this->port} -t {$this->web_root} >/dev/null 2>&1 & echo $!";
     print "Server running on PID = ";
     $this->server_pid = system($cmd);
-    sleep(1); // Wait a second for the socket to fully open
+    sleep(1); // Wait a second for the socket to open
   }
 
   public function endTestSuite(\PHPUnit_Framework_TestSuite $suite) {

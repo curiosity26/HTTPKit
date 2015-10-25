@@ -104,33 +104,36 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
     $content = "";
     $errno = null;
     $errstr = null;
-    $fp = stream_socket_client($this->buildTransportUrl($request), $errno, $errstr,
-      $this->getTimeout(), STREAM_CLIENT_CONNECT, $this->buildContext($request));
+    try {
+      $fp = stream_socket_client($this->buildTransportUrl($request), $errno, $errstr,
+        $this->getTimeout(), STREAM_CLIENT_CONNECT, $this->buildContext($request));
 
+      if ($fp !== false) {
+        $body = $this->build($request);
 
-    if ($fp !== false) {
-      $body = $this->build($request);
-
-      for ($written = 0; $written < strlen($body); $written += $fwrite) {
-        $fwrite = fwrite($fp, substr($body, $written));
-        if ($fwrite == false) {
-          break;
+        for ($written = 0; $written < strlen($body); $written += $fwrite) {
+          $fwrite = fwrite($fp, substr($body, $written));
+          if ($fwrite == false) {
+            break;
+          }
         }
-      }
 
-      if (!strcmp($body, $written)) {
-        throw new SocketInterruptException();
-      }
+        if (!strcmp($body, $written)) {
+          throw new SocketInterruptException();
+        }
 
-      while(!feof($fp)) {
-        $line = @fgets($fp);
-        $content .= $line;
-      }
+        while (!feof($fp)) {
+          $line = @fgets($fp);
+          $content .= $line;
+        }
 
-      fclose($fp);
+        fclose($fp);
+      } else {
+        throw new SocketConnectionException();
+      }
     }
-    else {
-      throw new SocketConnectionException();
+    catch(\Exception $e) {
+      throw new SocketConnectionException("", $errno, $e);
     }
 
     $response = new Response();
