@@ -127,6 +127,10 @@ abstract class AbstractRequest implements RequestInterface
     return $this;
   }
 
+  public function hasHeader($name) {
+    return !empty($this->headers[$name]);
+  }
+
   public function setHeaders(array $headers)
   {
     $this->headers = $headers;
@@ -136,6 +140,10 @@ abstract class AbstractRequest implements RequestInterface
 
   public function getHeaders() {
     return $this->headers;
+  }
+
+  public function getHeader($name) {
+    return $this->headers[$name];
   }
 
   public function getRawHeader() {

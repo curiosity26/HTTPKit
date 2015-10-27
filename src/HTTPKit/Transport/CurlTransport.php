@@ -35,6 +35,7 @@ class CurlTransport extends AbstractTransport
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_VERBOSE => true,
+        CURLOPT_HEADER => true,
         CURLOPT_PORT => $request->getPort() !== NULL ? $request->getPort() : 80,
         CURLOPT_FAILONERROR => false,
         CURLOPT_TIMEOUT => $this->timeout,
@@ -44,10 +45,10 @@ class CurlTransport extends AbstractTransport
       )
     );
 
-    if (preg_match('/^https:/', $request->getUrl()) !== false) {
+    if ($request->getScheme() == $request::SCHEME_HTTPS) {
       curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
       if ($request->getPort() === null) {
-        $this->port = 443;
+        $request->setPort(443);
         curl_setopt($this->ch, CURLOPT_PORT, $request->getPort());
       }
     }
@@ -65,7 +66,16 @@ class CurlTransport extends AbstractTransport
 
     switch ($request->getMethod()) {
       case RequestInterface::METHOD_POST:
-        curl_setopt($this->ch, CURLOPT_POST, true);
+        if ($request->getHeader('Content-Type') == 'application/json') {
+          curl_setopt(
+            $this->ch,
+            CURLOPT_CUSTOMREQUEST,
+            "POST"
+          ); // Posting JSON Data needs to POST while sidestepping CURLOPT_POST
+        }
+        else {
+          curl_setopt($this->ch, CURLOPT_POST, true);
+        }
         break;
       case RequestInterface::METHOD_PUT:
         ;
@@ -76,36 +86,19 @@ class CurlTransport extends AbstractTransport
       case RequestInterface::METHOD_CONNECT:
         curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $request->getMethod());
         break;
-      case RequestInterface::METHOD_JSON:
-        curl_setopt(
-          $this->ch,
-          CURLOPT_CUSTOMREQUEST,
-          "POST"
-        ); // Posting JSON Data needs to POST while sidestepping CURLOPT_POST
-        $request->addHeader('Content-Type', 'application/json');
-        break;
       default:
         curl_setopt($this->ch, CURLOPT_HTTPGET, true);
-        curl_setopt($this->ch, CURLOPT_HEADER, $builtHeaders);
     }
 
     curl_setopt($this->ch, CURLOPT_HTTPHEADER, $builtHeaders);
   }
 
-  public function parse($rawResponse, $requestInfo, ResponseInterface $response)
+  public function parse($rawResponse, ResponseInterface $response)
   {
-    $headerLength = 0;
-
-    if ($requestInfo['http_code'] !== 201 && $requestInfo['header_size'] > 0) {
-      $headerLength = $requestInfo['header_size'];
-    }
-
-    $rawHeader = substr($rawResponse, 0, $headerLength);
-    $content = substr($rawResponse, $headerLength);
-
-    $response->setResponseCode($requestInfo['http_code']);
-    $response->setRawHeader($rawHeader);
-    $response->setRawResponse($content);
+    list($header, $body) = explode("\r\n\r\n", $rawResponse, 2);
+    $response->setRawHeader($header);
+    $response->setRawResponse($rawResponse);
+    $response->setContent($body);
   }
 
   /**
@@ -119,13 +112,12 @@ class CurlTransport extends AbstractTransport
     $this->ch = curl_init();
     $this->build($request);
     $body = curl_exec($this->ch);
-    $info = curl_getinfo($this->ch);
     curl_close($this->ch);
 
     $response = new Response();
     $response->setRequest($request);
 
-    $this->parse($body, $info, $response);
+    $this->parse($body, $response);
 
     return $response;
   }

@@ -35,6 +35,8 @@ interface RequestInterface
   public function getPort();
   public function setHeaders(array $headers);
   public function getHeaders();
+  public function getHeader($name);
+  public function hasHeader($name);
   public function addHeader($name, $value);
   public function removeHeader($name);
   public function buildHeaders();

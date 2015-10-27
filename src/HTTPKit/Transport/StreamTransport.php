@@ -48,7 +48,7 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
 
     if ($request->getScheme() == $request::SCHEME_HTTPS) {
       $context['ssl'] = array(
-        'CN_match' => $request->getHost(),
+        //'CN_match' => $request->getHost(),
         'verify_peer' => TRUE,
         'verify_peer_name' => TRUE,
         'allow_self_signed' => TRUE
@@ -104,6 +104,7 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
     $content = "";
     $errno = null;
     $errstr = null;
+
     try {
       $fp = stream_socket_client($this->buildTransportUrl($request), $errno, $errstr,
         $this->getTimeout(), STREAM_CLIENT_CONNECT, $this->buildContext($request));
@@ -129,11 +130,13 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
 
         fclose($fp);
       } else {
+        print $errstr.PHP_EOL;
         throw new SocketConnectionException();
       }
     }
     catch(\Exception $e) {
-      throw new SocketConnectionException("", $errno, $e);
+      print $errstr.PHP_EOL;
+      throw new SocketConnectionException($errstr, $errno, $e);
     }
 
     $response = new Response();
