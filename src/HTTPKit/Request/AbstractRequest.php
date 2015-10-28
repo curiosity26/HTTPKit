@@ -151,12 +151,13 @@ abstract class AbstractRequest implements RequestInterface
 
     $url = $this->getUrl();
     $host = $this->getHost();
+    $port = $this->getPort();
     $path = parse_url($url, PHP_URL_PATH);
     $query = parse_url($url, PHP_URL_QUERY);
 
     $uri = $path.($query ? "?$query": null);
 
-    return $this->raw_header = "$method $uri HTTP/1.1"."\r\n"."Host: $host"."\r\n".implode("\r\n", $this->buildHeaders());
+    return $this->raw_header = "$method $uri HTTP/1.1"."\r\n"."Host: $host:$port"."\r\n".implode("\r\n", $this->buildHeaders());
   }
 
   public function setContent($data)

@@ -27,4 +27,14 @@ class StreamTransportTest extends HttpTestCase
     $this->assertTrue($response->isSuccess());
     $this->assertEquals('Success', $response->getContent());
   }
+
+  public function testSendData() {
+    $transport = new \HTTPKit\Transport\StreamTransport();
+    $request = new \HTTPKit\Request\Request('http://localhost:8000/post.php', \HTTPKit\Request\RequestInterface::METHOD_POST);
+    $data = sprintf("uniqid(): %s\r\n", uniqid());
+    $request->setContent($data);
+    $response = $transport->send($request);
+    $this->assertTrue($response->isSuccess());
+    $this->assertEquals('Success', $response->getContent());
+  }
 }

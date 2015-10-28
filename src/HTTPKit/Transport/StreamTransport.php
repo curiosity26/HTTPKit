@@ -101,7 +101,6 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
    * @return Response
    */
   public function send(RequestInterface $request) {
-    $content = "";
     $errno = null;
     $errstr = null;
 
@@ -109,40 +108,49 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
       $fp = stream_socket_client($this->buildTransportUrl($request), $errno, $errstr,
         $this->getTimeout(), STREAM_CLIENT_CONNECT, $this->buildContext($request));
 
-      if ($fp !== false) {
+      if ($fp != false) {
         $body = $this->build($request);
+        $sent = '';
 
         for ($written = 0; $written < strlen($body); $written += $fwrite) {
           $fwrite = fwrite($fp, substr($body, $written));
+          $sent .= substr($body, $written);
+
           if ($fwrite == false) {
             break;
           }
         }
 
-        if (!strcmp($body, $written)) {
+        if ($body != $sent) {
+          fclose($fp);
           throw new SocketInterruptException();
         }
 
-        while (!feof($fp)) {
-          $line = @fgets($fp);
-          $content .= $line;
-        }
+        $content = stream_get_contents($fp);
+        print $content;
 
         fclose($fp);
       } else {
-        print $errstr.PHP_EOL;
         throw new SocketConnectionException();
       }
     }
+    catch(SocketInterruptException $e) {
+      throw $e;
+    }
     catch(\Exception $e) {
-      print $errstr.PHP_EOL;
       throw new SocketConnectionException($errstr, $errno, $e);
     }
 
     $response = new Response();
     $response->setRequest($request);
 
-    $this->parse($content, $response);
+    try {
+      $this->parse($content, $response);
+    }
+    catch (\Exception $e) {
+      $response->setResponseCode(500);
+      $response->setContent($e->getMessage());
+    }
 
     return $response;
   }
