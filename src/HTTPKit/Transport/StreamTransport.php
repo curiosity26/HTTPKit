@@ -71,7 +71,13 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
       $protocol = self::PROTOCOL_SSL;
     }
 
-    return "$protocol://{$request->getHost()}:{$request->getPort()}";
+    $addr = $request->getHost();
+
+    if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $addr) != true) {
+      $addr = gethostbyname($addr);
+    }
+
+    return "$protocol://$addr:{$request->getPort()}";
   }
 
   public function build(RequestInterface $request) {
