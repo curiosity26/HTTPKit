@@ -10,10 +10,9 @@ $input = file_get_contents('php://input');
 
 if (strlen($input) > 0) {
   http_response_code(201);
-  print 'Created';
+  print $input;
 }
 else {
   http_response_code(406);
-  print 'Error';
 }
 

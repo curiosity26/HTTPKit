@@ -71,13 +71,7 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
       $protocol = self::PROTOCOL_SSL;
     }
 
-    $addr = $request->getHost();
-
-    if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $addr) != true) {
-      $addr = gethostbyname($addr);
-    }
-
-    return "$protocol://$addr:{$request->getPort()}";
+    return "$protocol://{$request->getHost()}:{$request->getPort()}";
   }
 
   public function build(RequestInterface $request) {
@@ -88,6 +82,9 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
 
     if (is_array($body)) {
       $body = http_build_query($body);
+    }
+    else {
+      $body .= "\r\n";
     }
 
     $build .= $body;
@@ -133,7 +130,6 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
         }
 
         $content = stream_get_contents($fp);
-        print $content;
 
         fclose($fp);
       } else {
@@ -143,7 +139,8 @@ class StreamTransport extends AbstractTransport implements StreamTransportInterf
     catch(SocketInterruptException $e) {
       throw $e;
     }
-    catch(\Exception $e) {
+    catch(SocketConnectionException $e) {
+      print $errstr;
       throw new SocketConnectionException($errstr, $errno, $e);
     }
 

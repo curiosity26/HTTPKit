@@ -105,12 +105,22 @@ abstract class AbstractRequest implements RequestInterface
 
   public function buildHeaders()
   {
-    $headers = array();
-    foreach ($this->headers as $name => $value) {
-      $headers[] = "$name: $value";
+    // Build headers with defaults
+    $now = new \DateTime();
+    $headers = $this->headers + array(
+        'Accept' => '*/*',
+        'Content-Length' => strlen($this->getContent()),
+        'Content-Type' => 'text/html',
+        'Date' => $now->format(\DateTime::RFC1123)
+    );
+
+    $return = array();
+
+    foreach ($headers as $name => $value) {
+      $return[] = "$name: $value";
     }
 
-    return $headers;
+    return $return;
   }
 
   public function addHeader($name, $value)

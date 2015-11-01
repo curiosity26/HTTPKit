@@ -33,6 +33,7 @@ class StreamTransportTest extends PHPUnit_Framework_TestCase
     $request->setContent($data);
     $response = $transport->send($request);
     $this->assertTrue($response->isSuccess());
-    $this->assertEquals('Success', $response->getContent());
+    // Typically a 201 response won't have any content, but for this test we want to assert that the data is being sent
+    $this->assertEquals($data, $response->getContent());
   }
 }
