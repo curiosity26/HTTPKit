@@ -21,8 +21,8 @@ class MemoryCookieHandler extends AbstractCookieHandler
   private $cookies = array();
 
   public function __construct(ResponseInterface $response = null) {
-    if (null !== $response) {
-      $this->parse($response);
+    if (null !== $response && $response->isSuccess()) {
+      $this->parse($response->getRawHeader());
     }
   }
 

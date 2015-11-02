@@ -15,13 +15,7 @@ use HTTPKit\Response\ResponseInterface;
 
 abstract class AbstractCookieHandler implements CookieHandlerInterface
 {
-  public function parse(ResponseInterface $response) {
-    if (!$response->isSuccess()) {
-      return;
-    }
-    $this->clearCookies();
-
-    $header = $response->getRawHeader();
+  public function parse($header) {
     $start = 0;
     while (($start = stripos($header, "Set-Cookie:", $start)) !== false) {
       if (($set_cookie = substr($header, $start, stripos($header, "\r\n", $start))) !== FALSE) {

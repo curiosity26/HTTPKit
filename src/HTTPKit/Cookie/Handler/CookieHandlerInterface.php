@@ -17,7 +17,7 @@ interface CookieHandlerInterface
 {
   public function setCookie(CookieInterface $cookie);
   public function getCookie($name);
-  public function parse(ResponseInterface $response);
+  public function parse($header);
   public function clearCookies();
   public function handleRequest(RequestInterface $request);
   public function __toString();
